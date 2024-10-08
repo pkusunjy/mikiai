@@ -1,0 +1,14 @@
+[package]
+name = "mikiai"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+actix-web = "4"
+lazy_static = "1.4"
+log = "0.4"
+log4rs = "1.2"
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+serde_yaml = "0.8"
+sqlx = { version = "0.5", features = ["mysql", "runtime-tokio-rustls"] }
