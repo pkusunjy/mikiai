@@ -2,24 +2,31 @@ use crate::config::mysql_config;
 use log::info;
 use serde::{Deserialize, Serialize};
 
-use sqlx::mysql::MySqlPool;
+use sqlx::{mysql::MySqlPool, Row};
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct WhitelistUserData {
+    #[serde(default, skip_serializing_if = "Option::is_none")]
     openid: Option<String>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
     name: Option<String>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
     added_time: Option<u64>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
     expiration_date: Option<u64>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
     added_by: Option<String>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
     status: Option<i8>,
 }
 
+#[derive(Debug)]
 pub struct MysqlClient {
-    pool: MySqlPool,
+    pub pool: MySqlPool,
 }
 
 impl MysqlClient {
-    pub async fn new() -> Result<Self, Box<dyn std::error::Error>> {
+    pub async fn new() -> Result<Self, Box<dyn std::error::Error + Send + Sync>> {
         let config = mysql_config::load_config()?;
         let url = config.to_string();
         Ok(MysqlClient {
@@ -96,5 +103,29 @@ impl MysqlClient {
         info!("update_whitelist_user exec_cmd: {}", exec_cmd);
         let result = sqlx::query(&exec_cmd).execute(&self.pool).await?;
         Ok(result.rows_affected())
+    }
+
+    pub async fn query_whitelist_user(
+        &self,
+        data: WhitelistUserData,
+    ) -> Result<Vec<WhitelistUserData>, Box<dyn std::error::Error>> {
+        info!("query_whitelist_user received data:{:?}", data);
+        let query_cmd = match data.openid {
+            Some(openid) => format!("SELECT * FROM whitelist_user WHERE openid='{}';", openid),
+            None => String::from("SELECT * FROM whitelist_user;"),
+        };
+        let rows = sqlx::query(&query_cmd).fetch_all(&self.pool).await?;
+        let res = rows
+            .into_iter()
+            .map(|row| WhitelistUserData {
+                openid: row.get("openid"),
+                name: row.get("name"),
+                added_time: row.get("added_time"),
+                expiration_date: row.get("expiration_date"),
+                added_by: row.get("added_by"),
+                status: row.get("status"),
+            })
+            .collect();
+        Ok(res)
     }
 }

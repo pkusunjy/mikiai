@@ -20,7 +20,7 @@ impl std::fmt::Display for Config {
     }
 }
 
-pub fn load_config() -> Result<Config, Box<dyn std::error::Error>> {
+pub fn load_config() -> Result<Config, Box<dyn std::error::Error + Send + Sync>> {
     let mut file = File::open("./conf/mysql.yaml")?;
     let mut contents = String::new();
     file.read_to_string(&mut contents)?;

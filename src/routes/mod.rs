@@ -1,17 +1,22 @@
+use crate::database::mysql::{MysqlClient, WhitelistUserData};
 use crate::models::Task;
-use crate::database::mysql;
 use crate::services::AppState;
 use actix_web::{web, HttpResponse, Responder};
+use log::{info, warn};
 
 pub fn task_routes(cfg: &mut web::ServiceConfig) {
     cfg.service(
-        web::scope("/tasks")
+        web::scope("/task")
             .route("", web::post().to(create_task))
             .route("/{id}", web::get().to(get_task))
             .route("/{id}", web::put().to(update_task))
-            .route("/{id}", web::delete().to(delete_task))
-            .route("/platform/whitelist_query", web::post().to(|| async {
-                HttpResponse::Ok().body("app")            })),
+            .route("/{id}", web::delete().to(delete_task)),
+    );
+}
+
+pub fn platform_routes(cfg: &mut web::ServiceConfig) {
+    cfg.service(
+        web::scope("/platform").route("/whitelist_query", web::post().to(query_whitelist_user)),
     );
 }
 
@@ -50,5 +55,29 @@ async fn delete_task(id: web::Path<usize>, data: web::Data<AppState>) -> impl Re
         HttpResponse::Ok().finish()
     } else {
         HttpResponse::NotFound().finish()
+    }
+}
+
+async fn insert_whitelist_user(
+    user: web::Json<WhitelistUserData>,
+    client: web::Data<MysqlClient>,
+) -> impl Responder {
+    match client.insert_whitelist_user(user.into_inner()).await {
+        Ok(rows_affected) => HttpResponse::Ok().body(format!("{{\"res\":{}}}", rows_affected)),
+        Err(_) => {
+            warn!("insert whitelist user err");
+            HttpResponse::Ok().body("error")
+        }
+    }
+}
+
+async fn query_whitelist_user(
+    user: web::Json<WhitelistUserData>,
+    client: web::Data<MysqlClient>,
+) -> impl Responder {
+    info!("query_whitelist_user triggered received user:{:?}", user);
+    match client.query_whitelist_user(user.into_inner()).await {
+        Ok(res) => HttpResponse::Ok().body(serde_json::to_string(&res).unwrap()),
+        Err(e) => HttpResponse::Ok().body(format!("some error:{}", e)),
     }
 }
