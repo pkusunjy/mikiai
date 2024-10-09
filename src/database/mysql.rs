@@ -45,23 +45,23 @@ impl MysqlClient {
         values.push(data.openid.ok_or("openid required")?);
         if let Some(name) = data.name {
             fields.push("name");
-            values.push(name);
+            values.push(format!("'{}'", name));
         }
         if let Some(added_time) = data.added_time {
             fields.push("added_time");
-            values.push(added_time.to_string());
+            values.push(format!("'{}'", added_time));
         }
         if let Some(expiration_date) = data.expiration_date {
             fields.push("expiration_date");
-            values.push(expiration_date.to_string());
+            values.push(format!("'{}'", expiration_date));
         }
         if let Some(added_by) = data.added_by {
             fields.push("added_by");
-            values.push(added_by.to_string());
+            values.push(format!("'{}'", added_by));
         }
         if let Some(status) = data.status {
             fields.push("status");
-            values.push(status.to_string());
+            values.push(format!("'{}'", status));
         }
         let exec_cmd = format!(
             "INSERT INTO whitelist_user {} VALUES {};",
