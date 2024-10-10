@@ -20,6 +20,13 @@ pub fn platform_routes(cfg: &mut web::ServiceConfig) {
     );
 }
 
+pub fn wechat_pay_routes(cfg: &mut web::ServiceConfig) {
+    cfg.service(
+        web::scope("/wx_payment.WxPaymentService")
+            .route("/jsapi", web::post().to(jsapi)),   
+    );
+}
+
 async fn create_task(task: web::Json<Task>, data: web::Data<AppState>) -> impl Responder {
     let mut tasks = data.tasks.lock().unwrap();
     tasks.insert(task.id, task.into_inner());
@@ -80,4 +87,8 @@ async fn query_whitelist_user(
         Ok(res) => HttpResponse::Ok().body(serde_json::to_string(&res).unwrap()),
         Err(e) => HttpResponse::Ok().body(format!("some error:{}", e)),
     }
+}
+
+async fn jsapi() -> impl Responder {
+    HttpResponse::Ok().body("test")
 }

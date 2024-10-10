@@ -2,6 +2,8 @@ use crate::models::Task;
 use std::collections::HashMap;
 use std::sync::Mutex;
 
+pub mod wechatpay;
+
 pub struct AppState {
     pub tasks: Mutex<HashMap<usize, Task>>,
 }

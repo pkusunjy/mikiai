@@ -42,7 +42,7 @@ impl MysqlClient {
         let mut values = Vec::new();
 
         fields.push("openid");
-        values.push(data.openid.ok_or("openid required")?);
+        values.push(format!("'{}'", data.openid.ok_or("openid required")?));
         if let Some(name) = data.name {
             fields.push("name");
             values.push(format!("'{}'", name));
