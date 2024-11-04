@@ -1,8 +1,8 @@
-use crate::database::mysql::{MysqlClient, WhitelistUserData};
 use crate::models::Task;
 use crate::services::AppState;
 use actix_web::{web, HttpResponse, Responder};
-use log::{info, warn};
+pub mod platform;
+pub mod wechatpay;
 
 pub fn task_routes(cfg: &mut web::ServiceConfig) {
     cfg.service(
@@ -11,19 +11,6 @@ pub fn task_routes(cfg: &mut web::ServiceConfig) {
             .route("/{id}", web::get().to(get_task))
             .route("/{id}", web::put().to(update_task))
             .route("/{id}", web::delete().to(delete_task)),
-    );
-}
-
-pub fn platform_routes(cfg: &mut web::ServiceConfig) {
-    cfg.service(
-        web::scope("/platform").route("/whitelist_query", web::post().to(query_whitelist_user)),
-    );
-}
-
-pub fn wechat_pay_routes(cfg: &mut web::ServiceConfig) {
-    cfg.service(
-        web::scope("/wx_payment.WxPaymentService")
-            .route("/jsapi", web::post().to(jsapi)),   
     );
 }
 
@@ -63,32 +50,4 @@ async fn delete_task(id: web::Path<usize>, data: web::Data<AppState>) -> impl Re
     } else {
         HttpResponse::NotFound().finish()
     }
-}
-
-async fn insert_whitelist_user(
-    user: web::Json<WhitelistUserData>,
-    client: web::Data<MysqlClient>,
-) -> impl Responder {
-    match client.insert_whitelist_user(user.into_inner()).await {
-        Ok(rows_affected) => HttpResponse::Ok().body(format!("{{\"res\":{}}}", rows_affected)),
-        Err(_) => {
-            warn!("insert whitelist user err");
-            HttpResponse::Ok().body("error")
-        }
-    }
-}
-
-async fn query_whitelist_user(
-    user: web::Json<WhitelistUserData>,
-    client: web::Data<MysqlClient>,
-) -> impl Responder {
-    info!("query_whitelist_user triggered received user:{:?}", user);
-    match client.query_whitelist_user(user.into_inner()).await {
-        Ok(res) => HttpResponse::Ok().body(serde_json::to_string(&res).unwrap()),
-        Err(e) => HttpResponse::Ok().body(format!("some error:{}", e)),
-    }
-}
-
-async fn jsapi() -> impl Responder {
-    HttpResponse::Ok().body("test")
 }

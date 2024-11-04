@@ -28,10 +28,23 @@ pub struct MysqlClient {
 impl MysqlClient {
     pub async fn new() -> Result<Self, Box<dyn std::error::Error + Send + Sync>> {
         let config = mysql_config::load_config()?;
-        let url = config.to_string();
+        let url = config.to_url();
         Ok(MysqlClient {
             pool: MySqlPool::connect(&url).await?,
         })
+    }
+
+    pub async fn delete_whitelist_user(
+        &self,
+        data: WhitelistUserData,
+    ) -> Result<u64, Box<dyn std::error::Error>> {
+        let exec_cmd = format!(
+            "DELETE FROM whitelist_user WHERE openid='{}';",
+            data.openid.ok_or("openid required")?
+        );
+        info!("delete_whitelist_user exec_cmd:{}", exec_cmd);
+        let result = sqlx::query(&exec_cmd).execute(&self.pool).await?;
+        Ok(result.rows_affected())
     }
 
     pub async fn insert_whitelist_user(

@@ -10,10 +10,9 @@ pub struct Config {
     database: String,
 }
 
-impl std::fmt::Display for Config {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(
-            f,
+impl Config {
+    pub fn to_url(&self) -> String {
+        format!(
             "mysql://{}:{}@{}:{}/{}",
             self.username, self.password, self.ip, self.port, self.database
         )

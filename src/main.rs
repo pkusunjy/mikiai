@@ -1,6 +1,7 @@
 use crate::database::mysql::MysqlClient;
-use crate::routes::platform_routes;
+use crate::routes::platform::platform_routes;
 use crate::routes::task_routes;
+use crate::routes::wechatpay::wechat_pay_routes;
 use actix_web::{web, App, HttpServer};
 
 mod config;
@@ -26,6 +27,7 @@ async fn main() -> std::io::Result<()> {
             .configure(platform_routes)
             .app_data(app_state.clone())
             .configure(task_routes)
+            .configure(wechat_pay_routes)
     })
     .bind("127.0.0.1:8080")?
     .run()
