@@ -1,4 +1,4 @@
-use crate::config::mysql_config;
+use crate::config;
 use log::info;
 use serde::{Deserialize, Serialize};
 
@@ -27,7 +27,7 @@ pub struct MysqlClient {
 
 impl MysqlClient {
     pub async fn new() -> Result<Self, Box<dyn std::error::Error + Send + Sync>> {
-        let config = mysql_config::load_config()?;
+        let config = config::load_mysql_config()?;
         let url = config.to_url();
         Ok(MysqlClient {
             pool: MySqlPool::connect(&url).await?,

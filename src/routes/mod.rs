@@ -1,6 +1,7 @@
 use crate::models::Task;
 use crate::services::AppState;
 use actix_web::{web, HttpResponse, Responder};
+pub mod forward;
 pub mod platform;
 pub mod wechatpay;
 

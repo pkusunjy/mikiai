@@ -1,4 +1,4 @@
-use crate::config::wechatpay_config;
+use crate::config;
 
 use wechat_pay_rust_sdk::model::{AmountInfo, JsapiParams, PayerInfo};
 use wechat_pay_rust_sdk::pay::WechatPay;
@@ -23,6 +23,4 @@ pub async fn pay() -> JsapiParams {
 }
 
 #[derive(Debug)]
-struct WechatPayService {
-
-}
+struct WechatPayService {}
