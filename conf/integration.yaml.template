@@ -1,0 +1,24 @@
+# openai
+openai_url_root: https://mikiai-tokyo-onctmshaci.ap-northeast-1.fcapp.run/v1
+openai_api_key: OPENAI_API_KEY
+# 阿里千问
+qwen_url_root: https://dashscope.aliyuncs.com/compatible-mode/v1
+qwen_api_key: QWEN_API_KEY
+# 阿里云对象存储(oss), 用于保存音频
+aliyun_oss_endpoint: ALIYUN_OSS_ACCESS_ENDPOINT
+aliyun_oss_access_key_id: ALIYUN_OSS_ACCESS_KEY_ID
+aliyun_oss_access_key_secret: ALIYUN_OSS_ACCESS_KEY_SECRET
+# 前端提供的swagger api部署位置
+swagger_endpoint: SWAGGER_ENDPOINT
+# 后端专用数据库(非前端直接使用)
+mysql_ip: MYSQL_DB_IP
+mysql_port: MYSQL_DB_PORT
+mysql_username: MYSQL_DB_USERNAME
+mysql_password: MYSQL_DB_PASSWORD
+mysql_database: MYSQL_DB_DATABASE_NAME
+# 微信支付
+wechat_appid: WECHAT_PAY_APPID
+wechat_mch_id: WECHAT_PAY_MCHID
+wechat_v3_key: WECHAT_PAY_V3KEY
+wechat_private_key: WECHAT_PAY_PRIVATE_KEY
+wechat_serial_no: WECHAT_PAY_SERIAL_NO

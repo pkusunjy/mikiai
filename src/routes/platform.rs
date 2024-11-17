@@ -1,6 +1,6 @@
-use crate::database::mysql::{MysqlClient, WhitelistUserData};
+use crate::services::platform::{DataPlatformService, WhitelistUserData};
 use actix_web::{web, HttpResponse, Responder};
-use log::{info, warn};
+use log::warn;
 
 pub fn platform_routes(cfg: &mut web::ServiceConfig) {
     cfg.service(
@@ -14,48 +14,61 @@ pub fn platform_routes(cfg: &mut web::ServiceConfig) {
 
 async fn delete_whitelist_user(
     user: web::Json<WhitelistUserData>,
-    client: web::Data<MysqlClient>,
+    client: web::Data<DataPlatformService>,
 ) -> impl Responder {
     match client.delete_whitelist_user(user.into_inner()).await {
         Ok(rows_affected) => HttpResponse::Ok().body(format!("{{\"res\":{}}}", rows_affected)),
-        Err(_) => {
-            warn!("delete whitelist user err");
-            HttpResponse::Ok().body("error")
+        Err(e) => {
+            warn!("[delete_whitelist_user] error: {}", e);
+            HttpResponse::Ok().body("{{\"res\":0}}")
         }
     }
 }
 
 async fn insert_whitelist_user(
     user: web::Json<WhitelistUserData>,
-    client: web::Data<MysqlClient>,
+    client: web::Data<DataPlatformService>,
 ) -> impl Responder {
     match client.insert_whitelist_user(user.into_inner()).await {
         Ok(rows_affected) => HttpResponse::Ok().body(format!("{{\"res\":{}}}", rows_affected)),
-        Err(_) => {
-            warn!("insert whitelist user err");
-            HttpResponse::Ok().body("error")
+        Err(e) => {
+            warn!("[insert_whitelist_user] error: {}", e);
+            HttpResponse::Ok().body("{{\"res\":0}}")
         }
     }
 }
 
 async fn query_whitelist_user(
     user: web::Json<WhitelistUserData>,
-    client: web::Data<MysqlClient>,
+    client: web::Data<DataPlatformService>,
 ) -> impl Responder {
-    info!("query_whitelist_user triggered received user:{:?}", user);
     match client.query_whitelist_user(user.into_inner()).await {
-        Ok(res) => HttpResponse::Ok().body(serde_json::to_string(&res).unwrap()),
-        Err(e) => HttpResponse::Ok().body(format!("some error:{}", e)),
+        Ok(res) => {
+            let resp_json_str = match serde_json::to_string(&res) {
+                Ok(json_str) => json_str,
+                Err(e) => {
+                    warn!("[query_whitelist_user] serde to json failed err:{}", e);
+                    String::from("[]")
+                }
+            };
+            HttpResponse::Ok().body(resp_json_str)
+        }
+        Err(e) => {
+            warn!("[query_whitelist_user] error: {}", e);
+            HttpResponse::Ok().body("[]")
+        }
     }
 }
 
 async fn update_whitelist_user(
     user: web::Json<WhitelistUserData>,
-    client: web::Data<MysqlClient>,
+    client: web::Data<DataPlatformService>,
 ) -> impl Responder {
-    info!("update_whitelist_user triggered received user:{:?}", user);
     match client.update_whitelist_user(user.into_inner()).await {
-        Ok(res) => HttpResponse::Ok().body(serde_json::to_string(&res).unwrap()),
-        Err(e) => HttpResponse::Ok().body(format!("some error:{}", e)),
+        Ok(rows_affected) => HttpResponse::Ok().body(format!("{{\"res\":{}}}", rows_affected)),
+        Err(e) => {
+            warn!("[update_whitelist_user] error: {}", e);
+            HttpResponse::Ok().body("{{\"res\":0}}")
+        }
     }
 }
