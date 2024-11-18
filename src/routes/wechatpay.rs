@@ -3,7 +3,7 @@ use crate::services::{
     wechatpay::{CheckAndPayRequest, WechatPayService},
 };
 use actix_web::{web, HttpResponse, Responder};
-use log::{info, warn};
+use log::warn;
 
 pub fn wechatpay_routes(cfg: &mut web::ServiceConfig) {
     cfg.service(web::scope("/wx_payment.WxPaymentService").route("/jsapi", web::post().to(jsapi)));

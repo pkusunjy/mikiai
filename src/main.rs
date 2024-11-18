@@ -1,5 +1,4 @@
 use crate::routes::platform::platform_routes;
-use crate::routes::task_routes;
 use crate::routes::wechatpay::wechatpay_routes;
 use crate::services::platform::DataPlatformService;
 use actix_web::{web, App, HttpServer};
@@ -8,7 +7,6 @@ use log::warn;
 use services::wechatpay::WechatPayService;
 
 mod config;
-mod models;
 mod routes;
 mod services;
 

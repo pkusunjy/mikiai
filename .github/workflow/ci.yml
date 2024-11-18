@@ -1,0 +1,91 @@
+on:
+  push:
+    branches:
+      - 'main'
+
+name: mikiai default ci
+
+jobs:
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+    steps:
+    - name: checkout repository
+      uses: actions/checkout@v4
+
+    - name: Generate AI conf
+      run: |
+        sed -i "s/OPENAI_API_KEY/${{ secrets.OPENAI_API_KEY }}/g" ./conf/integration.yaml
+        sed -i "s/QWEN_API_KEY/${{ secrets.QWEN_API_KEY }}/g" ./conf/integration.yaml
+    
+    - name: Generate Aliyun OSS conf
+      run: |
+        sed -i "s/ALIYUN_OSS_ACCESS_ENDPOINT/${{ secrets.ALIYUN_OSS_ACCESS_ENDPOINT }}/g" ./conf/integration.yaml
+        sed -i "s/ALIYUN_OSS_ACCESS_KEY_ID/${{ secrets.ALIYUN_OSS_ACCESS_KEY_ID }}/g" ./conf/integration.yaml
+        sed -i "s/ALIYUN_OSS_ACCESS_KEY_SECRET/${{ secrets.ALIYUN_OSS_ACCESS_KEY_SECRET }}/g" ./conf/integration.yaml
+    
+
+    - name: Generate swagger api conf
+      run: |
+        sed -i "s/SWAGGER_ENDPOINT/${{ secrets.SWAGGER_ENDPOINT }}/g" ./conf/integration.yaml
+
+    - name: Generate MySQL conf
+        sed -i "s/MYSQL_DB_IP/${{ secrets.MYSQL_DB_IP }}/g" ./conf/integration.yaml
+        sed -i "s/MYSQL_DB_PORT/${{ secrets.MYSQL_DB_PORT }}/g" ./conf/integration.yaml
+        sed -i "s/MYSQL_DB_USERNAME/${{ secrets.MYSQL_DB_USERNAME }}/g" ./conf/integration.yaml
+        sed -i "s/MYSQL_DB_PASSWORD/${{ secrets.MYSQL_DB_PASSWORD }}/g" ./conf/integration.yaml
+        sed -i "s/MYSQL_DB_DATABASE_NAME/${{ secrets.MYSQL_DB_DATABASE_NAME }}/g" ./conf/integration.yaml
+
+    - name: Generate WechatPay conf
+        sed -i "s/WECHAT_PAY_APPID/${{ secrets.WECHAT_PAY_APPID }}/g" ./conf/integration.yaml
+        sed -i "s/WECHAT_PAY_MCHID/${{ secrets.WECHAT_PAY_MCHID }}/g" ./conf/integration.yaml
+        sed -i "s/WECHAT_PAY_V3KEY/${{ secrets.WECHAT_PAY_V3KEY }}/g" ./conf/integration.yaml
+        sed -i "s/WECHAT_PAY_SECRET/${{ secrets.WECHAT_PAY_SECRET }}/g" ./conf/integration.yaml
+        sed -i "s/WECHAT_PAY_SERIAL_NO/${{ secrets.WECHAT_PAY_SERIAL_NO }}/g" ./conf/integration.yaml
+  
+    - name: Build
+      run: |
+        cargo build --release
+        mkdir -p output/bin output/conf
+        mv ./mikiai output/bin/
+        mv ./conf/* output/conf/
+
+  deploy:
+    name: Deploy
+    runs-on: ubuntu-latest
+    steps:
+    - name: Backup previous version
+      uses: appleboy/ssh-action@master
+      with: 
+        host: ${{ secrets.SERVER_HOST }}
+        username: ${{ secrets.SERVER_USERNAME }}
+        password: ${{ secrets.SERVER_PASSWORD }}
+        port: ${{ secrets.SERVER_PORT }}
+        script: |
+          mv ${{ secrets.DEPLOY_PATH }} ${{ secrets.DEPLOY_PATH }}.$(date +%Y%m%d_%H%M)
+
+    - name: Deploy
+      uses: appleboy/scp-action@v0.1.7
+      with:
+        host: ${{ secrets.SERVER_HOST }}
+        username: ${{ secrets.SERVER_USERNAME }}
+        password: ${{ secrets.SERVER_PASSWORD }}
+        port: ${{ secrets.SERVER_PORT }}
+        source: ./output/*
+        target: ${{ secrets.DEPLOY_PATH }}
+        strip_components: 1
+
+  restart:
+    name: Restart(TODO)
+    needs: build-and-deploy
+    runs-on: ubuntu-latest
+    steps:
+    - uses: appleboy/ssh-action@master
+      with: 
+        host: ${{ secrets.SERVER_HOST }}
+        username: ${{ secrets.SERVER_USERNAME }}
+        password: ${{ secrets.SERVER_PASSWORD }}
+        port: ${{ secrets.SERVER_PORT }}
+        script: |
+          cd ${{ secrets.DEPLOY_PATH }}
+          ls -al

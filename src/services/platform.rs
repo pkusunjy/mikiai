@@ -2,7 +2,6 @@ use crate::config::IntegrationConfig;
 use log::info;
 use serde::{Deserialize, Serialize};
 use sqlx::Row;
-use std::sync::Arc;
 
 // 白名单用户信息
 #[derive(Default, Debug, Serialize, Deserialize)]

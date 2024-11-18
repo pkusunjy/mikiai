@@ -1,5 +1,4 @@
 use serde::{Deserialize, Serialize};
-use std::sync::Arc;
 use std::{fs::File, io::Read};
 
 // 集成配置
@@ -26,7 +25,7 @@ pub struct IntegrationConfig {
     pub wechat_appid: String,
     pub wechat_mch_id: String,
     pub wechat_v3_key: String,
-    pub wechat_private_key: String,
+    pub wechat_secret: String,
     pub wechat_serial_no: String,
 }
 

@@ -7,7 +7,7 @@ use std::convert::TryInto;
 use std::fs::File;
 use std::io::{self, Read};
 use time::OffsetDateTime;
-use wechat_pay_rust_sdk::model::{AmountInfo, JsapiParams, PayerInfo};
+use wechat_pay_rust_sdk::model::JsapiParams;
 use wechat_pay_rust_sdk::pay::WechatPay;
 
 #[derive(Debug, Deserialize)]
@@ -15,16 +15,6 @@ pub struct CheckAndPayRequest {
     openid: Option<String>,
     amount: Option<i32>,
     data_platform_order_type: Option<i32>,
-}
-
-impl CheckAndPayRequest {
-    pub fn new() -> Self {
-        CheckAndPayRequest {
-            openid: None,
-            amount: None,
-            data_platform_order_type: None,
-        }
-    }
 }
 
 #[derive(Debug, Serialize)]
@@ -63,8 +53,7 @@ impl WechatPayService {
     pub fn new(
         integration_conf: &IntegrationConfig,
     ) -> Result<Self, Box<dyn std::error::Error + Send + Sync>> {
-        let private_key_path: &str = &integration_conf.wechat_private_key;
-        let private_key = std::fs::read_to_string(private_key_path)?;
+        let private_key = std::fs::read_to_string("/home/work/cert/apiclient_key.pem")?;
         Ok(WechatPayService {
             customer_save_url: integration_conf
                 .gen_utility_url_by_route("/utility-project/ysCustomer/save"),

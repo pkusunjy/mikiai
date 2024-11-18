@@ -20,5 +20,5 @@ mysql_database: MYSQL_DB_DATABASE_NAME
 wechat_appid: WECHAT_PAY_APPID
 wechat_mch_id: WECHAT_PAY_MCHID
 wechat_v3_key: WECHAT_PAY_V3KEY
-wechat_private_key: WECHAT_PAY_PRIVATE_KEY
+wechat_secret: WECHAT_PAY_SECRET
 wechat_serial_no: WECHAT_PAY_SERIAL_NO

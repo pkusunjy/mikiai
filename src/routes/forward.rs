@@ -1,6 +1,5 @@
 use actix_web::{web, HttpRequest, HttpResponse, Responder};
 use log::info;
-use sqlx::query;
 
 pub fn forward_routes(cfg: &mut web::ServiceConfig) {
     cfg.service(
