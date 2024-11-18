@@ -190,7 +190,10 @@ impl WechatPayService {
                 openid.as_str().into(),
             ))
             .await?;
-        info!("[jsapi] openid:{} pay success", openid);
+        info!(
+            "[jsapi] openid:{} pay success body:{:?}",
+            openid, wechat_pay_body
+        );
         let sign_data = wechat_pay_body
             .sign_data
             .ok_or(format!("[jsapi] openid:{} get sign_data failed", openid))?;
