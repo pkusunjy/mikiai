@@ -1,7 +1,9 @@
 on:
   push:
-    branches:
-      - 'main'
+    branches: [ 'main' ]
+
+env:
+  CARGO_TERM_COLOR: always
 
 name: mikiai default ci
 
