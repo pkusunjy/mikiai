@@ -32,6 +32,7 @@ jobs:
         sed -i "s/SWAGGER_ENDPOINT/${{ secrets.SWAGGER_ENDPOINT }}/g" ./conf/integration.yaml
 
     - name: Generate MySQL conf
+      run: |
         sed -i "s/MYSQL_DB_IP/${{ secrets.MYSQL_DB_IP }}/g" ./conf/integration.yaml
         sed -i "s/MYSQL_DB_PORT/${{ secrets.MYSQL_DB_PORT }}/g" ./conf/integration.yaml
         sed -i "s/MYSQL_DB_USERNAME/${{ secrets.MYSQL_DB_USERNAME }}/g" ./conf/integration.yaml
@@ -39,6 +40,7 @@ jobs:
         sed -i "s/MYSQL_DB_DATABASE_NAME/${{ secrets.MYSQL_DB_DATABASE_NAME }}/g" ./conf/integration.yaml
 
     - name: Generate WechatPay conf
+      run: |
         sed -i "s/WECHAT_PAY_APPID/${{ secrets.WECHAT_PAY_APPID }}/g" ./conf/integration.yaml
         sed -i "s/WECHAT_PAY_MCHID/${{ secrets.WECHAT_PAY_MCHID }}/g" ./conf/integration.yaml
         sed -i "s/WECHAT_PAY_V3KEY/${{ secrets.WECHAT_PAY_V3KEY }}/g" ./conf/integration.yaml
