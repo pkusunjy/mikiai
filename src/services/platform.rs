@@ -129,8 +129,11 @@ impl DataPlatformService {
         data: WhitelistUserData,
     ) -> Result<Vec<WhitelistUserData>, Box<dyn std::error::Error>> {
         let exec_cmd = match &data.openid {
-            Some(openid) => format!("SELECT * FROM whitelist_user WHERE openid='{}';", openid),
-            None => String::from("SELECT * FROM whitelist_user;"),
+            Some(openid) => format!(
+                "SELECT * FROM whitelist_user WHERE openid='{}' AND expiration_date > UNIX_TIMESTAMP(NOW());",
+                openid
+            ),
+            None => String::from("SELECT * FROM whitelist_user WHERE expiration_date > UNIX_TIMESTAMP(NOW());"),
         };
         info!("[query_whitelist_user] exec_cmd:{}", exec_cmd);
         let rows = sqlx::query(&exec_cmd).fetch_all(&self.pool).await?;

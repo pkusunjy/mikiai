@@ -37,6 +37,7 @@ async fn main() -> std::io::Result<()> {
             warn!("[main] WechatPayService init failed error: {}", e);
             std::io::Error::new(std::io::ErrorKind::InvalidData, e)
         })?);
+
     HttpServer::new(move || {
         App::new()
             .app_data(integration_conf.clone())
