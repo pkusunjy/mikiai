@@ -1,33 +1,40 @@
-# Scan this file for changes every 30 seconds
 refresh_rate: 30 seconds
 
 appenders:
-  # An appender named "stdout" that writes to stdout
   stdout:
     kind: console
+  rolling_file:
+    kind: rolling_file
+    path: "log/mikiai.log"
+    policy:
+      kind: size
+      limit: 10 mb
+  rolling_file_wf:
+    kind: rolling_file
+    path: "log/mikiai.log.wf"
+    policy:
+      kind: size
+      limit: 10 mb
 
-  # An appender named "requests" that writes to a file with a custom pattern encoder
-  requests:
-    kind: file
-    path: "log/requests.log"
-    encoder:
-      pattern: "{d} - {m}{n}"
-
-# Set the default logging level to "info" and attach the "stdout" appender to the root
 root:
-  level: info
+  level: trace
   appenders:
     - stdout
+    - rolling_file
+    - rolling_file_wf
+  
 
 loggers:
-  # Raise the maximum log level for events sent to the "app::backend::db" logger to "info"
-  app::backend::db:
-    level: info
-
-  # Route log events sent to the "app::requests" logger to the "requests" appender,
-  # and *not* the normal appenders installed at the root
-  app::requests:
+  info:
     level: info
     appenders:
-      - requests
+      - rolling_file
+      - stdout
+    additive: false
+
+  warn:
+    level: warn
+    appenders:
+      - rolling_file_wf
+      - stdout
     additive: false
