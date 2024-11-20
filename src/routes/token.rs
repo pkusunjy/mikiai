@@ -1,4 +1,7 @@
-use crate::services::token::{CodeToSessionRequest, TokenService};
+use crate::{
+    config::IntegrationConfig,
+    services::token::{CodeToSessionRequest, TokenService},
+};
 use actix_web::{web, HttpResponse, Responder};
 use log::warn;
 use serde_json::json;
@@ -15,11 +18,11 @@ pub fn token_routes(cfg: &mut web::ServiceConfig) {
     );
 }
 
-async fn get_aliyun_oss_token(token_service: web::Data<TokenService>) -> impl Responder {
+async fn get_aliyun_oss_token(conf: web::Data<IntegrationConfig>) -> impl Responder {
     let resp_json = json!({
-        "ossEndpoint": token_service.aliyun_oss_endpoint,
-        "ossAccessKeyId": token_service.aliyun_oss_access_key_id,
-        "ossAccessKeySecret": token_service.aliyun_oss_access_key_secret,
+        "ossEndpoint": conf.aliyun_oss_endpoint,
+        "ossAccessKeyId": conf.aliyun_oss_access_key_id,
+        "ossAccessKeySecret": conf.aliyun_oss_access_key_secret,
     });
     let resp_json_str = match serde_json::to_string(&resp_json) {
         Ok(resp_json_str) => resp_json_str,
@@ -31,10 +34,10 @@ async fn get_aliyun_oss_token(token_service: web::Data<TokenService>) -> impl Re
     HttpResponse::Ok().body(resp_json_str)
 }
 
-async fn get_wechat_miniprogram_token(token_service: web::Data<TokenService>) -> impl Responder {
+async fn get_wechat_miniprogram_token(conf: web::Data<IntegrationConfig>) -> impl Responder {
     let resp_json = json!({
-        "appid": token_service.wechat_appid,
-        "secret": token_service.wechat_secret,
+        "appid": conf.wechat_appid,
+        "secret": conf.wechat_secret,
     });
     let resp_json_str = match serde_json::to_string(&resp_json) {
         Ok(resp_json_str) => resp_json_str,
@@ -51,9 +54,13 @@ async fn get_wechat_miniprogram_token(token_service: web::Data<TokenService>) ->
 
 async fn jscode_to_session(
     req: web::Json<CodeToSessionRequest>,
+    conf: web::Data<IntegrationConfig>,
     token_service: web::Data<TokenService>,
 ) -> impl Responder {
-    match token_service.jscode_to_session(req.into_inner()).await {
+    match token_service
+        .jscode_to_session(&conf, req.into_inner())
+        .await
+    {
         Ok(resp) => {
             let resp_json_str = match serde_json::to_string(&resp) {
                 Ok(json_str) => json_str,

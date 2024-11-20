@@ -45,7 +45,8 @@ impl IntegrationConfig {
     }
 }
 
-pub fn load_integration_config() -> Result<IntegrationConfig, Box<dyn std::error::Error>> {
+pub fn load_integration_config(
+) -> Result<IntegrationConfig, Box<dyn std::error::Error + Send + Sync>> {
     let mut file = File::open("./conf/integration.yaml")?;
     let mut contents = String::new();
     file.read_to_string(&mut contents)?;

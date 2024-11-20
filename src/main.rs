@@ -1,9 +1,11 @@
 use crate::routes::platform::platform_routes;
+use crate::routes::token::token_routes;
 use crate::routes::wechatpay::wechatpay_routes;
 use crate::services::platform::DataPlatformService;
 use actix_web::{web, App, HttpServer};
 use log::info;
 use log::warn;
+use services::token::TokenService;
 use services::wechatpay::WechatPayService;
 
 mod config;
@@ -20,13 +22,10 @@ async fn main() -> std::io::Result<()> {
         }
     }
 
-    let integration_conf = match config::load_integration_config() {
-        Ok(conf) => conf,
-        Err(e) => {
-            warn!("[main] load_integration_config err: {}", e);
-            std::process::exit(1);
-        }
-    };
+    let integration_conf = web::Data::new(
+        config::load_integration_config()
+            .map_err(|e| std::io::Error::new(std::io::ErrorKind::InvalidData, e))?,
+    );
     let mysql_state = web::Data::new(
         DataPlatformService::new(&integration_conf)
             .await
@@ -37,7 +36,7 @@ async fn main() -> std::io::Result<()> {
             warn!("[main] WechatPayService init failed error: {}", e);
             std::io::Error::new(std::io::ErrorKind::InvalidData, e)
         })?);
-
+    let token_state = web::Data::new(TokenService::new());
     HttpServer::new(move || {
         App::new()
             .app_data(integration_conf.clone())
@@ -45,8 +44,10 @@ async fn main() -> std::io::Result<()> {
             .configure(platform_routes)
             .app_data(wechatpay_state.clone())
             .configure(wechatpay_routes)
+            .app_data(token_state.clone())
+            .configure(token_routes)
     })
-    .bind("127.0.0.1:8080")?
+    .bind("127.0.0.1:5099")?
     .run()
     .await
 }

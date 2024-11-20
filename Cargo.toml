@@ -5,7 +5,7 @@ edition = "2021"
 
 [dependencies]
 actix-web = "4"
-awc = "3.5.1"
+awc = { version = "3.5.1", features = ["rustls"] }
 lazy_static = "1.4"
 log = "0.4"
 log4rs = { version = "1.2", features = ["all_components"] }
