@@ -3,38 +3,23 @@ refresh_rate: 30 seconds
 appenders:
   stdout:
     kind: console
+    encoder:
+      pattern: "{l}: {d(%m-%d %H:%M:%S.%3f)}: {P} [{f}:{L}] {m} {n}"
   rolling_file:
     kind: rolling_file
+    append: true
+    encoder:
+      pattern: "{l}: {d(%m-%d %H:%M:%S.%3f)}: {P} [{f}:{L}] {m} {n}"
     path: "log/mikiai.log"
     policy:
-      kind: size
-      limit: 10 mb
-  rolling_file_wf:
-    kind: rolling_file
-    path: "log/mikiai.log.wf"
-    policy:
-      kind: size
-      limit: 10 mb
+      kind: compound
+      trigger:
+        kind: size
+        limit: 1024 mb
+      roller:
+        kind: delete
 
 root:
-  level: trace
+  level: info
   appenders:
-    - stdout
     - rolling_file
-    - rolling_file_wf
-  
-
-loggers:
-  info:
-    level: info
-    appenders:
-      - rolling_file
-      - stdout
-    additive: false
-
-  warn:
-    level: warn
-    appenders:
-      - rolling_file_wf
-      - stdout
-    additive: false
